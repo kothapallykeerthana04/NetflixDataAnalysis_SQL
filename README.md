@@ -33,6 +33,7 @@ A data analysis project using SQL to explore trends in the Netflix Movies and TV
 **SCHEMA**
 
 DROP TABLE IF EXISTS netflix;
+
 CREATE TABLE netflix
 (
     show_id      VARCHAR(5),
