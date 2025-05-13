@@ -1,1 +1,143 @@
+-- Netflix Data Analysis using SQL
+-- Solutions of 15 business problems
+-- 1. Count the number of Movies vs TV Shows
 
+SELECT 
+	type,
+	COUNT(*)
+FROM netflix
+GROUP BY 1
+
+--2.How many total titles are there?
+
+SELECT COUNT(*) as total FROM netflix_titles;
+
+--3.What percentage of the dataset is Movies vs TV Shows?
+
+SELECT type, COUNT(*) as count FROM netflix_titles GROUP BY type;
+
+- 4. List all movies released in a specific year (e.g., 2020)
+
+SELECT * 
+FROM netflix
+WHERE release_year = 2020
+
+--5.Top Countries & Genres
+
+SELECT country, COUNT(*) FROM netflix_titles GROUP BY country ORDER BY COUNT(*) DESC LIMIT 5;
+
+SELECT listed_in, COUNT(*) FROM netflix_titles GROUP BY listed_in ORDER BY COUNT(*) DESC LIMIT 5;
+
+-- 6. Find content added in the last 5 years
+SELECT
+*
+FROM netflix
+WHERE TO_DATE(date_added, 'Month DD, YYYY') >= CURRENT_DATE - INTERVAL '5 years'
+
+--7. How has Netflix's content production changed over the years?
+
+SELECT release_year, COUNT(*) FROM netflix_titles GROUP BY release_year ORDER BY release_year;
+
+-- 8. List all TV shows with more than 5 seasons
+
+SELECT *
+FROM netflix
+WHERE 
+	TYPE = 'TV Show'
+	AND
+	SPLIT_PART(duration, ' ', 1)::INT > 5
+
+--9. Identify the Longest Movie
+
+SELECT 
+    *
+FROM netflix_titles
+WHERE type = 'Movie' 
+  AND duration IS NOT NULL
+ORDER BY CAST(SUBSTRING_INDEX(duration, ' ', 1) AS UNSIGNED) DESC;
+
+--10. Query to find all titles  where the description contains word family 
+
+SELECT * FROM  netflix_titles where description LIKE ‘%family%’;
+
+--11. Rank movie and TV show titles based on their release year within each country. Provide the title name, release year, country, and rank within the country.
+
+SELECT show_id, title, country, release_year,
+       RANK() OVER (PARTITION BY country ORDER BY release_year DESC) AS rank_within_country
+FROM netflix;
+
+--12. Classify Netflix titles into audience categories (Kids, Family, Teens, Adults) based on their maturity rating.
+
+SELECT title, rating,
+  CASE
+    WHEN rating IN ('TV-Y', 'TV-Y7', 'G', 'TV-G') THEN 'Kids'
+    WHEN rating IN ('PG', 'TV-PG') THEN 'Family'
+    WHEN rating IN ('PG-13', 'TV-14') THEN 'Teens'
+    WHEN rating IN ('R', 'TV-MA', 'NC-17') THEN 'Adults'
+    ELSE 'Unknown'
+  END AS audience_category
+FROM netflix_titles;
+
+-- 13. Find each year and the average numbers of content release by India on netflix. 
+-- return top 5 year with highest avg content release !
+
+
+SELECT 
+	country,
+	release_year,
+	COUNT(show_id) as total_release,
+	ROUND(
+		COUNT(show_id)::numeric/
+								(SELECT COUNT(show_id) FROM netflix WHERE country = 'India')::numeric * 100 
+		,2
+		)
+		as avg_release
+FROM netflix
+WHERE country = 'India' 
+GROUP BY country, 2
+ORDER BY avg_release DESC 
+LIMIT 5
+
+
+--14. How many Netflix titles belong to each genre or genre combination
+
+SELECT listed_in, COUNT(*) AS count
+FROM netflix_titles
+GROUP BY listed_in
+ORDER BY count DESC;
+
+--15. Retrieve titles featuring a specific actor using a stored procedure
+
+DELIMITER $$ 
+CREATE PROCEDURE GetTitlesByActor(IN actor_name VARCHAR(255)) 
+BEGIN 
+SELECT title, type, cast, release_year FROM netflix_titles WHERE FIND_IN_SET(actor_name, cast) > 0; 
+END $$ 
+DELIMITER ;
+
+CALL GetTitlesByActor('Kappei Yamaguchi');
+
+--16.
+Categorize the content based on the presence of the keywords 'kill' and 'violence' in 
+the description field. Label content containing these keywords as 'Bad' and all other 
+content as 'Good'. Count how many items fall into each category.
+*/
+
+
+SELECT 
+    category,
+	TYPE,
+    COUNT(*) AS content_count
+FROM (
+    SELECT 
+		*,
+        CASE 
+            WHEN description ILIKE '%kill%' OR description ILIKE '%violence%' THEN 'Bad'
+            ELSE 'Good'
+        END AS category
+    FROM netflix
+) AS categorized_content
+GROUP BY 1,2
+ORDER BY 2
+
+--END OF REPORT--
