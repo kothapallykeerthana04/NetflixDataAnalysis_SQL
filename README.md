@@ -13,12 +13,14 @@ A data analysis project using SQL to explore trends in the Netflix Movies and TV
 
 ---
 
-## 📊 Dataset Overview
+## 🎯 Objectives
 
-- 📁 Dataset: `netflix_titles.csv`
-- 🗂 Columns include:
-  - `title`, `type`, `director`, `cast`, `country`
-  - `release_year`, `date_added`, `rating`, `duration`, `listed_in`
+- Analyze the distribution of Movies vs TV Shows
+- Identify top countries, genres, and content ratings
+- Discover trends in content release over the years
+- Classify content into audience categories (Kids, Family, Teens, Adults)
+- Rank titles by release year within each country
+- Build stored procedures to fetch titles by actor
 
 📍 Source: [Kaggle – Netflix Movies and TV Shows Dataset](https://www.kaggle.com/datasets/shivamb/netflix-shows)
 
@@ -29,6 +31,20 @@ A data analysis project using SQL to explore trends in the Netflix Movies and TV
 - SQL (PostgreSQL / MySQL syntax)
 - Kaggle (data source)
 - Canva / PowerPoint (presentation)
+
+
+---
+
+## 📌 Key SQL Concepts Used
+
+- `GROUP BY`, `ORDER BY`, `HAVING`
+- `CASE` statements
+- `RANK() OVER (PARTITION BY ...)` window functions
+- `LIKE`, `FIND_IN_SET`, and string functions
+- Stored Procedures
+
+---
+
 
 **SCHEMA**
 
@@ -49,3 +65,15 @@ CREATE TABLE netflix
     listed_in    VARCHAR(250),
     description  VARCHAR(550)
 );
+
+
+**Insights Gained**
+Movies account for a larger portion of Netflix's content
+
+The United States contributes the most content
+
+Drama and International content are most popular
+
+TV-MA and TV-14 are dominant maturity ratings
+
+Recent years show a significant increase in title releases
